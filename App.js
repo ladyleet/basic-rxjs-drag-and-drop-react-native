@@ -14,7 +14,7 @@ export default class App extends React.Component {
 
   _subscription = new Subscription();
   
-  state = { locationX: 0, locationY: 0, pageX: 0, pageY: 0};
+  state = { locationX: -110, locationY: -200, pageX: 0, pageY: 0};
   
   componentDidMount() {
     this._subscription.add(this._touchStart.pipe(
@@ -43,8 +43,8 @@ export default class App extends React.Component {
 
     const { pageX, pageY, locationX, locationY } = this.state;
 
-    donutX = pageX - locationX + 100;
-    donutY = pageY - locationY - 80;
+    donutX = pageX - locationX;
+    donutY = pageY - locationY;
 
     return (
       <View style={styles.container}>
