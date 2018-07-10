@@ -1,13 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { Subject, Subscription } from 'rxjs';
-import { exhaustMap, takeUntil, map } from 'rxjs/operators';
+import { exhaustMap, takeUntil, map, filter } from 'rxjs/operators';
 import donut from './donut.png';
 
 export default class App extends React.Component {
-  _onMoveShouldSetResponder () { return true; }
-  _onMoveShouldSetResponderCapture () { return true; }
- 
   _touchStart = new Subject();
   _touchMove = new Subject();
   _touchEnd = new Subject();
@@ -19,11 +16,12 @@ export default class App extends React.Component {
   componentDidMount() {
     this._subscription.add(this._touchStart.pipe(
       exhaustMap(start => {
-        // because React reuses the event object, we need to capture these now.
+        const touchId = start.id;
         const locationX = start.nativeEvent.locationX;
         const locationY = start.nativeEvent.locationY;
         return this._touchMove.pipe(
           takeUntil(this._touchEnd),
+          filter(move => move.id === touchId),
           map(move => ({
             pageX: move.nativeEvent.pageX,
             pageY: move.nativeEvent.pageY,
@@ -50,8 +48,8 @@ export default class App extends React.Component {
       <View style={styles.container}>
         <Text>Hey look, it's a donut you can drag and drop!</Text>
         <Image
-          onMoveShouldSetResponder={() => this._onMoveShouldSetResponder() } 
-          onMoveShouldSetResponderCapture={() => this._onMoveShouldSetResponderCapture() }   
+          onMoveShouldSetResponder={() => true } 
+          onMoveShouldSetResponderCapture={() => true }   
           onResponderGrant={(e) => this._touchStart.next(e) } 
           onResponderMove={(e) => this._touchMove.next(e) } 
           onResponderRelease={(e) => this._touchEnd.next(e) }
